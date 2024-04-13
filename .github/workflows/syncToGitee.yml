@@ -1,0 +1,19 @@
+name: Sync to Gitee
+
+on:
+  push:
+    branches:
+      - main  # 根据需要调整分支名称
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Sync to Gitee
+        uses: wearerequired/git-mirror-action@v1
+        with:
+          source-repo: "https://${{ secrets.GITHUB_TOKEN }}@github.com/Qiu-0/Zhangli.git"
+          destination-repo: "https://${{ secrets.GITEE_TOKEN }}@gitee.com/Qiu-0/Zhangli.git"
