@@ -1,19 +1,23 @@
-name: Sync to Gitee
+name: Mirror to Bitbucket Repo
 
-on:
-  push:
-    branches:
-      - main  # 根据需要调整分支名称
+on: [ push, delete, create ]
+
+# Ensures that only one mirror task will run at a time.
+concurrency:
+  group: git-mirror
 
 jobs:
-  sync:
+  git-mirror:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Sync to Gitee
-        uses: wearerequired/git-mirror-action@v1
+      - name: Install SSH key and set SSH known hosts
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H gitee.com >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+      - uses: wearerequired/git-mirror-action@v1
         with:
-          source-repo: "https://${{ secrets.GITHUB_TOKEN }}@github.com/Qiu-0/Zhangli.git"
-          destination-repo: "https://${{ secrets.GITEE_TOKEN }}@gitee.com/Qiu-0/Zhangli.git"
+          source-repo: "git@github.com:Qiu-0/Zhangli.git"
+          destination-repo: "git@gitee.com:Qiu-0/Zhangli.git"
