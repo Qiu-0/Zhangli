@@ -1,36 +1,33 @@
-name: Sync to Gitee
+name: 🔀 Sync mirror to Gitee
 
 on:
   push:
-    branches: [main]
-
+    branches:
+      - main
+      - gh-pages
+      - feature
+      - 2.x-stable
+      - 3.x-stable
+      - 4.x-stable
+  create:
   workflow_dispatch:
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Sync to Gitee
-        uses: Yikun/hub-mirror-action@master
-        with:
-          # 必选，需要同步的Github用户（源）
-          src: 'Qiu-0/Zhangli'
-          # 必选，需要同步到的Gitee的用户（目的）
-          dst: 'Qiu-0/Zhangli'
-          # 必选，Gitee公钥对应的私钥
-          dst_key: ${{ secrets.GITEE_PRIVATE_KEY }}
-          # 必选，Gitee对应的用于创建仓库的token
-          dst_token:  ${{ secrets.GITEE_TOKEN }}
-          # static_list 仓库名称 单一仓库同步
-          static_list: "Zhangli"
-          # 如果是组织，指定组织即可，默认为用户user
-          # account_type: org
-          # 还有黑、白名单，静态名单机制，可以用于更新某些指定库
-          # static_list: repo_name
-          # black_list: 'repo_name,repo_name2'
-          # white_list: 'repo_name,repo_name2'
-          # force_update 表示启用 git push -f 强制同步
-          force_update: true
-          # debug 为 true 表示启用 debug 开关，会显示所有执行命令
-          debug: true
+permissions:
+  contents: read
 
+jobs:
+  mirror:
+    permissions:
+      contents: none
+    runs-on: ubuntu-latest
+    if: github.repository == 'Qiu-0/Zhangli.git'
+    steps:
+      - name: mirror
+        continue-on-error: true
+        if: github.event_name == 'push' || (github.event_name == 'create' && github.event.ref_type == 'tag') || github.event_name == 'workflow_dispatch'
+        uses: wearerequired/git-mirror-action@v1
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.GITEE_PRIVATE_KEY }}
+        with:
+          source-repo: 'git@github.com:Qiu-0/Zhangli.git'
+          destination-repo: 'git@gitee.com:Qiu-0/Zhangli.git' 
