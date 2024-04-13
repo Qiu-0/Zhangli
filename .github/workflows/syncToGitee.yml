@@ -20,7 +20,6 @@ jobs:
     permissions:
       contents: none
     runs-on: ubuntu-latest
-    if: github.repository == 'Qiu-0/Zhangli.git'
     steps:
       - name: mirror
         continue-on-error: true
